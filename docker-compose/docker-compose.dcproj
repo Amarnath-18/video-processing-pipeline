@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.Docker.Sdk">
+  <PropertyGroup Label="Globals">
+    <ProjectVersion>2.1</ProjectVersion>
+    <DockerTargetOS>Linux</DockerTargetOS>
+    <ProjectGuid>{5F4C4E6C-6A76-4D7A-B9A3-1E2D5C73A6E1}</ProjectGuid>
+    <DockerComposeBaseFilePath>docker-compose</DockerComposeBaseFilePath>
+    <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
+    <DockerServiceName>auth-service</DockerServiceName>
+    <DockerServiceUrl>{Scheme}://localhost:{ServicePort}</DockerServiceUrl>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include=".env.example" />
+    <None Include="docker-compose.yml" />
+  </ItemGroup>
+</Project>
