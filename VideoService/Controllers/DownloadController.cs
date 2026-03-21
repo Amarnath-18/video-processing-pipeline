@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using AuthService.Services.VideoService;
-using AuthService.Models.DownloadModels;
+using Microsoft.AspNetCore.Mvc;
+using VideoService.Models.DownloadModels;
+using VideoService.Services.VideoService;
 
-namespace AuthService.Controllers
+namespace VideoService.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -23,13 +23,8 @@ namespace AuthService.Controllers
 
             try
             {
-                var filePath = await _videoService.DownloadAsync(request.Url);
-
-                return Ok(new
-                {
-                    message = "Download successful",
-                    path = filePath
-                });
+                var result = await _videoService.DownloadAsync(request.Url);
+                return File(result.Stream, result.ContentType, result.FileName);
             }
             catch (Exception ex)
             {

@@ -7,21 +7,25 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Models\DownloadModels\**" />
     <Compile Remove="NewFolder\**" />
+    <Content Remove="Models\DownloadModels\**" />
     <Content Remove="NewFolder\**" />
+    <EmbeddedResource Remove="Models\DownloadModels\**" />
     <EmbeddedResource Remove="NewFolder\**" />
+    <None Remove="Models\DownloadModels\**" />
     <None Remove="NewFolder\**" />
   </ItemGroup>
 
   <ItemGroup>
 	  <PackageReference Include="BCrypt.Net-Next" Version="4.1.0" />
 	  <PackageReference Include="Dapper" Version="2.1.72" />
+	  <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.5" />
 	  <PackageReference Include="Npgsql" Version="8.0.4" />
 	  <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.16.0" />
 	  <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.16.0" />
 	  <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.16.0" />
 	  <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.5" />
-	  <PackageReference Include="YoutubeExplode" Version="6.5.7" />
   </ItemGroup>
 
 </Project>
