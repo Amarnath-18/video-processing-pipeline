@@ -1,6 +1,5 @@
 ﻿using AuthService.DAL.AuthDal;
 using AuthService.Services.AuthService;
-using AuthService.Services.VideoService;
 using Microsoft.OpenApi;
 using Npgsql;
 using System.Data;
@@ -54,7 +53,6 @@ builder.Services.AddScoped<IDbConnection>(sp =>
 // Register DAL and Service
 builder.Services.AddScoped<IAuthDal, AuthDal>();
 builder.Services.AddScoped<IAuthService, AuthService.Services.AuthService.AuthService>();
-builder.Services.AddScoped<IVideoService, VideoService>();
 
 
 var app = builder.Build();
