@@ -1,4 +1,4 @@
-﻿namespace AuthService.Models.Common
+﻿namespace Common
 {
     public static class AppStatusCode
     {

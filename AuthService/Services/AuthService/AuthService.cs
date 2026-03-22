@@ -1,6 +1,6 @@
 ﻿using AuthService.DAL.AuthDal;
 using AuthService.Models.Auth;
-using AuthService.Models.Common;
+using Common;
 using BCrypt.Net;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -117,28 +117,63 @@ namespace AuthService.Services.AuthService
             }
         }
 
+        public async Task<(int Status, UserDetails? User, string? Message)> GetUser(Guid userId)
+        {
+            try
+            {
+                if (userId == Guid.Empty)
+                {
+                    logger.LogWarning("Invalid user id: {UserId}", userId);
+                    return (AppStatusCode.BAD_REQUEST, null, "Invalid user id.");
+                }
+
+                var userResponse = await authDal.GetUserById(userId);
+                if (userResponse.Status == AppStatusCode.DATABASE_ERROR)
+                {
+                    logger.LogError("Database error while fetching user: {UserId}", userId);
+                    return (AppStatusCode.DATABASE_ERROR, null, "Failed to fetch user. Please try again.");
+                }
+
+                if (userResponse.User == null)
+                {
+                    return (AppStatusCode.RECORD_NOT_FOUND, null, "User not found");
+                }
+
+                return (AppStatusCode.SUCCESS, userResponse.User, "User fetched successfully");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to fetch user for id {UserId}", userId);
+                return (AppStatusCode.INTERNAL_SERVER_ERROR, null, "Failed to fetch user");
+            }
+        }
+
         private string GenerateToken(User user)
         {
+            var jwtKey = _config["Jwt:Key"] ?? throw new InvalidOperationException("Jwt:Key is not configured.");
+
             var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_config["Jwt:Key"] ?? "")
+                Encoding.UTF8.GetBytes(jwtKey)
             );
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new[]
             {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim("userName", user.UserName) // optional custom claims
-        };
+                new Claim("UserId", user.Id.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim("userName", user.UserName)
+            };
+
+            var expiryMinutes = _config.GetValue<double>("Jwt:ExpiryMinutes");
 
             var token = new JwtSecurityToken(
                 issuer: _config["Jwt:Issuer"],
                 audience: _config["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(
-                    Convert.ToDouble(_config["Jwt:ExpiryMinutes"])
-                ),
+                expires: DateTime.UtcNow.AddMinutes(expiryMinutes),
                 signingCredentials: creds
             );
 

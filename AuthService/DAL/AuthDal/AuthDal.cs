@@ -1,5 +1,5 @@
 ﻿using AuthService.Models.Auth;
-using AuthService.Models.Common;
+using Common;
 using Dapper;
 using System.Data;
 
@@ -69,6 +69,35 @@ namespace AuthService.DAL.AuthDal
             catch (Exception ex)
             {
                 logger.LogError(ex, "Error fetching user with email: {Email}", email);
+                return (AppStatusCode.DATABASE_ERROR, null, "Something went wrong");
+            }
+        }
+
+        public async Task<(int Status, UserDetails? User, string? Message)> GetUserById(Guid userId)
+        {
+            try
+            {
+                const string sql = @"
+            SELECT 
+                id as Id,
+                username as UserName,
+                email as Email,
+                is_active as IsActive
+            FROM users
+            WHERE id = @UserId";
+
+                var user = await dbConnection.QueryFirstOrDefaultAsync<UserDetails>(sql, new { UserId = userId });
+
+                if (user == null)
+                {
+                    return (AppStatusCode.RECORD_NOT_FOUND, null, "User not found");
+                }
+
+                return (AppStatusCode.SUCCESS, user, null);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error fetching user with id: {UserId}", userId);
                 return (AppStatusCode.DATABASE_ERROR, null, "Something went wrong");
             }
         }

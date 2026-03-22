@@ -1,7 +1,9 @@
 ﻿using AuthService.Models.Auth;
-using AuthService.Models.Common;
+using Common;
 using AuthService.Services.AuthService;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AuthService.Controllers
 {
@@ -187,6 +189,57 @@ namespace AuthService.Controllers
                 {
                     Status = AppStatusCode.INTERNAL_SERVER_ERROR,
                     Message = "An unexpected error occurred. Please contact support if the issue persists."
+                });
+            }
+        }
+
+        [Authorize]
+        [HttpGet("user")]
+        public async Task<IActionResult> GetUser()
+        {
+            try
+            {
+                string? id  = User.FindFirst("UserId")?.Value;
+
+                if (!Guid.TryParse(id, out Guid userId))
+                {
+                    return BadRequest(new CommonResponse
+                    {
+                        Status = AppStatusCode.FORBIDDEN,
+                        Message = "Invalid UserId"
+                    });
+                }
+
+
+                var response = await authService.GetUser(userId);
+                var commonResponse = new CommonResponse
+                {
+                    Status = response.Status,
+                    Message = response.Message,
+                };
+
+                switch (commonResponse.Status)
+                {
+                    case AppStatusCode.SUCCESS:
+                        return Ok(response.User);
+                    case AppStatusCode.RECORD_NOT_FOUND:
+                        return NotFound(commonResponse);
+                    case AppStatusCode.BAD_REQUEST:
+                    case AppStatusCode.INVALID_INPUT:
+                        return BadRequest(commonResponse);
+                    case AppStatusCode.DATABASE_ERROR:
+                        return StatusCode(503, commonResponse);
+                    default:
+                        return StatusCode(500, commonResponse);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error while getting user ");
+                return StatusCode(500, new CommonResponse
+                {
+                    Status = AppStatusCode.INTERNAL_SERVER_ERROR,
+                    Message = "An error occurred while fetching user.",
                 });
             }
         }
