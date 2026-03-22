@@ -1,4 +1,4 @@
-﻿using AuthService.Models.Common;
+﻿using Common;
 using System.ComponentModel.DataAnnotations;
 
 namespace AuthService.Models.Auth
@@ -24,6 +24,19 @@ namespace AuthService.Models.Auth
     {
         public string? AccessToken { get; init; }
     }
+
+    public record UserDetails
+    {
+        public Guid Id { get; init; }
+        public string UserName { get; init; } = string.Empty;
+        public string Email { get; init; } = string.Empty;
+        public bool IsActive { get; init; }
+    }
+
+    //public record GetUserResponse : CommonResponse
+    //{
+    //    public UserDetails? User { get; init; }
+    //}
 
 
     public record User

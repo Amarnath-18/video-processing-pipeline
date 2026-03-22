@@ -1,4 +1,0 @@
-﻿namespace AuthService.Models.Common
-{
-    
-}

@@ -6,5 +6,6 @@ namespace AuthService.Services.AuthService
     {
         Task<(int Status, string? Message)> Register(Register register);
         Task<(int Status, string? AccessToken, string? Message)> Login(Login login);
+        Task<(int Status, UserDetails? User, string? Message)> GetUser(Guid userId);
     }
 }
