@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using YoutubeExplode;
+using YoutubeExplode.Common;
 using YoutubeExplode.Videos.Streams;
 
 namespace VideoService.Services.VideoService
@@ -13,7 +14,7 @@ namespace VideoService.Services.VideoService
             _logger = logger;
         }
 
-        public async Task<(Stream Stream, string FileName, string ContentType)> DownloadAsync(string url)
+        public async Task<(Stream Stream, string FileName, string ContentType)> DownloadAsync(string url , Resolution resolution)
         {
             _logger.LogInformation("Starting video download for URL: {Url}", url);
 

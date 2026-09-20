@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using VideoService.Models.DownloadModels;
 using VideoService.Services.VideoService;
+using YoutubeExplode.Common;
+using Common;
 
 namespace VideoService.Controllers
 {
@@ -16,22 +18,27 @@ namespace VideoService.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Download([FromBody] DownloadRequest request)
+        public async Task<IActionResult> Download([FromBody] DownloadRequest request , [FromQuery] Resolution resolution)
         {
             if (string.IsNullOrWhiteSpace(request.Url))
-                return BadRequest("URL is required");
+                return BadRequest(new CommonResponse
+                {
+                    Status = AppStatusCode.BAD_REQUEST,
+                    Message = "Url cannot be empty!!"
+                });
 
             try
             {
-                var result = await _videoService.DownloadAsync(request.Url);
+                var result = await _videoService.DownloadAsync(request.Url, resolution);
+
                 return File(result.Stream, result.ContentType, result.FileName);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
+                return StatusCode(500, new CommonResponse
                 {
-                    message = "Download failed",
-                    error = ex.Message
+                    Status = AppStatusCode.INTERNAL_SERVER_ERROR,
+                    Message = "Download failed",
                 });
             }
         }
